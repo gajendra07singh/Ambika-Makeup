@@ -25,7 +25,7 @@ const AppointmentModal = ({ isOpen, onClose }) => {
 
     // Save to Database and Trigger Email
     try {
-      await fetch('https://backend-u9y0.onrender.com/api/appointments', {
+      const response = await fetch('https://backend-u9y0.onrender.com/api/appointments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,6 +40,11 @@ const AppointmentModal = ({ isOpen, onClose }) => {
         }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || 'Server Error');
+      }
+
       setIsSubmitted(true);
 
       // Close modal after 2 seconds
@@ -51,7 +56,7 @@ const AppointmentModal = ({ isOpen, onClose }) => {
 
     } catch (error) {
       console.error('Error:', error);
-      alert("Something went wrong. Please try again later.");
+      alert(`Error: ${error.message}`);
     }
   };
 

@@ -94,7 +94,7 @@ const ContactPage = () => {
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert("Error connecting to server. Please make sure the backend is running.");
+      alert(`Error: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
