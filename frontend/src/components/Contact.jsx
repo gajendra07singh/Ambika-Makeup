@@ -25,7 +25,7 @@ const Contact = () => {
 
     // Save to Database and Trigger Email
     try {
-      await fetch('http://localhost:5000/api/appointments', {
+      await fetch('https://backend-u9y0.onrender.com/api/appointments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
