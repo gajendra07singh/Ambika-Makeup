@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gold: #D4AF37;
+  --color-gold-dark: #b8962e;
+  --color-soft-beige: #F8F4EF;
+  --color-luxury-black: #111111;
+  --color-light-bg: #F8F4EF;
+  --color-text-main: #333333;
+  --animate-scroll-mouse: scroll-mouse 2s infinite;
+  --animate-ken-burns: ken-burns 20s ease infinite alternate;
+  --animate-fade-up: fade-up 1s ease-out forwards;
+  --animate-slow-zoom: slow-zoom 20s ease infinite alternate;
+
+  @keyframes scroll-mouse {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(15px); opacity: 0; }
+  }
+
+  @keyframes ken-burns {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); }
+  }
+
+  @keyframes fade-up {
+    0% { transform: translateY(30px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes slow-zoom {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-text-main font-sans antialiased;
+  margin: 0;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: 'Playfair Display', serif;
+}
+
+.gold-btn {
+  @apply bg-gold text-white px-8 py-3 rounded-sm uppercase tracking-widest text-xs font-semibold hover:bg-gold-dark transition-all duration-300;
+}
+
+.outline-btn {
+  @apply border border-text-main text-text-main px-8 py-3 rounded-sm uppercase tracking-widest text-xs font-semibold hover:bg-text-main hover:text-white transition-all duration-300;
+}
+
+.section-padding {
+  @apply py-12 px-6;
+}
+
+.card-shadow {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.gallery-swiper .swiper-wrapper {
+  transition-timing-function: linear !important;
+  will-change: transform;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+
+/* Ensure no pause on hover */
+.animate-marquee:hover {
+  animation-play-state: running !important;
+}
