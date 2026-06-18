@@ -3,9 +3,10 @@ import { Phone, Mail, MapPin, Send } from 'lucide-react';
 
 const Contact = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    phone: '',
+    phone: '+91 ',
     email: '',
     service: 'Bridal Makeup',
     date: '',
@@ -14,6 +15,14 @@ const Contact = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'phone') {
+      if (!value.startsWith('+91 ')) return;
+      if (value.length > 14) return;
+      const digits = value.slice(4);
+      if (digits !== '' && !/^\d+$/.test(digits)) return;
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -22,10 +31,18 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const API_URL = isLocal
+      ? 'http://localhost:5000/api/appointments'
+      : 'https://backend-u9y0.onrender.com/api/appointments';
+
+    console.log(`[FRONTEND] Submitting to: ${API_URL}`);
 
     // Save to Database and Trigger Email
     try {
-      await fetch('https://backend-u9y0.onrender.com/api/appointments', {
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,6 +57,11 @@ const Contact = () => {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error('Failed to submit appointment');
+      }
+
+      console.log('Booking successful!');
       setIsSubmitted(true);
 
       // Reset form after 2 seconds
@@ -47,7 +69,7 @@ const Contact = () => {
         setIsSubmitted(false);
         setFormData({
           name: '',
-          phone: '',
+          phone: '+91 ',
           email: '',
           service: 'Bridal Makeup',
           date: '',
@@ -56,8 +78,10 @@ const Contact = () => {
       }, 2000);
 
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error submitting form:', error);
       alert(`Error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -110,63 +134,68 @@ const Contact = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-3">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Full Name</label>
-                    <input
-                      required
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="e.g. Jane Doe"
-                      className="w-full bg-[#F9F9F9] border-b border-transparent p-2.5 text-[13px] focus:outline-none focus:border-gold transition-colors placeholder:text-gray-300 text-gray-900 rounded-sm"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Phone Number</label>
-                    <input
-                      required
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="+91 XXXXX XXXXX"
-                      className="w-full bg-[#F9F9F9] border-b border-transparent p-2.5 text-[13px] focus:outline-none focus:border-gold transition-colors placeholder:text-gray-300 text-gray-900 rounded-sm"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Email Address</label>
-                    <input
-                      required
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="hello@example.com"
-                      className="w-full bg-[#F9F9F9] border-b border-transparent p-2.5 text-[13px] focus:outline-none focus:border-gold transition-colors placeholder:text-gray-300 text-gray-900 rounded-sm"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Service Required</label>
-                    <div className="relative">
-                      <select
-                        name="service"
-                        value={formData.service}
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Full Name *</label>
+                      <input
+                        required
+                        type="text"
+                        name="name"
+                        value={formData.name}
                         onChange={handleChange}
-                        className="w-full bg-[#F9F9F9] border-b border-transparent p-2.5 text-[13px] text-gray-900 focus:outline-none focus:border-gold transition-colors appearance-none rounded-sm cursor-pointer"
-                      >
-                        <option>Bridal Makeup</option>
-                        <option>Engagement Makeup</option>
-                        <option>Party Makeup</option>
-                        <option>HD Makeup</option>
-                      </select>
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
+                        placeholder="e.g. Jane Doe"
+                        className="w-full bg-[#F9F9F9] border-b border-transparent p-2.5 text-[13px] focus:outline-none focus:border-gold transition-colors placeholder:text-gray-300 text-gray-900 rounded-sm"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Phone Number *</label>
+                      <input
+                        required
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        pattern="\+91 [0-9]{10}"
+                        title="Please enter a valid 10-digit phone number after +91"
+                        placeholder="+91 XXXXX XXXXX"
+                        className="w-full bg-[#F9F9F9] border-b border-transparent p-2.5 text-[13px] focus:outline-none focus:border-gold transition-colors placeholder:text-gray-300 text-gray-900 rounded-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Email Address (Optional)</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="hello@example.com"
+                        className="w-full bg-[#F9F9F9] border-b border-transparent p-2.5 text-[13px] focus:outline-none focus:border-gold transition-colors placeholder:text-gray-300 text-gray-900 rounded-sm"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Service Required *</label>
+                      <div className="relative">
+                        <select
+                          required
+                          name="service"
+                          value={formData.service}
+                          onChange={handleChange}
+                          className="w-full bg-[#F9F9F9] border-b border-transparent p-2.5 text-[13px] text-gray-900 focus:outline-none focus:border-gold transition-colors appearance-none rounded-sm cursor-pointer"
+                        >
+                          <option>Bridal Makeup</option>
+                          <option>Engagement Makeup</option>
+                          <option>Party Makeup</option>
+                          <option>HD Makeup</option>
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                          <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -196,8 +225,13 @@ const Contact = () => {
                 </div>
 
                 <div className="pt-1">
-                  <button type="submit" className="w-full bg-[#D4AF37] text-white py-3 px-6 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#B38F4D] transition-all rounded-sm shadow-sm flex items-center justify-center gap-3">
-                    Book Consultation <Send size={14} />
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className={`w-full ${isLoading ? 'bg-gray-400' : 'bg-[#D4AF37] hover:bg-[#B38F4D]'} text-white py-3 px-6 text-[11px] uppercase tracking-[0.2em] font-bold transition-all rounded-sm shadow-sm flex items-center justify-center gap-3`}
+                  >
+                    {isLoading ? 'Processing...' : 'Book Consultation'}
+                    {!isLoading && <Send size={14} />}
                   </button>
                 </div>
               </form>

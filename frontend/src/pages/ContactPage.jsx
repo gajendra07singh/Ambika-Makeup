@@ -48,7 +48,7 @@ const FAQItem = ({ question, answer }) => {
 const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: '',
-    phone: '',
+    phone: '+91 ',
     email: '',
     service: 'Bridal Makeup',
     date: '',
@@ -59,6 +59,14 @@ const ContactPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'phone') {
+      if (!value.startsWith('+91 ')) return;
+      if (value.length > 14) return;
+      const digits = value.slice(4);
+      if (digits !== '' && !/^\d+$/.test(digits)) return;
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -69,20 +77,35 @@ const ContactPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const API_URL = isLocal
+      ? 'http://localhost:5000/api/appointments'
+      : 'https://backend-u9y0.onrender.com/api/appointments';
+
+    console.log(`[FRONTEND] Submitting to: ${API_URL}`);
+
     try {
-      const response = await fetch('https://backend-u9y0.onrender.com/api/appointments', {
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          service: formData.service,
+          date: formData.date,
+          message: formData.message
+        }),
       });
 
       if (response.ok) {
-        alert("Thank you for booking! We have received your request and an email notification has been sent.");
+        console.log('Booking successful!');
+        alert("Thank you for booking! We have received your request.");
         setFormData({
           name: '',
-          phone: '',
+          phone: '+91 ',
           email: '',
           service: 'Bridal Makeup',
           date: '',
@@ -259,7 +282,7 @@ const ContactPage = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Full Name</label>
+                      <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Full Name *</label>
                       <input
                         required
                         type="text"
@@ -271,13 +294,15 @@ const ContactPage = () => {
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Phone Number</label>
+                      <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Phone Number *</label>
                       <input
                         required
                         type="tel"
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
+                        pattern="\+91 [0-9]{10}"
+                        title="Please enter a valid 10-digit phone number after +91"
                         placeholder="+91 XXXXX XXXXX"
                         className="w-full bg-[#F9F9F9] border-b border-transparent py-2.5 px-4 focus:outline-none focus:border-gold transition-colors text-gray-800 text-sm placeholder:text-gray-300"
                       />
@@ -286,9 +311,8 @@ const ContactPage = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Email Address</label>
+                      <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Email Address (Optional)</label>
                       <input
-                        required
                         type="email"
                         name="email"
                         value={formData.email}
@@ -298,9 +322,10 @@ const ContactPage = () => {
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Service Required</label>
+                      <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 block">Service Required *</label>
                       <div className="relative">
                         <select
+                          required
                           name="service"
                           value={formData.service}
                           onChange={handleChange}
