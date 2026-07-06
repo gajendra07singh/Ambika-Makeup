@@ -11,6 +11,8 @@ const Navbar = ({ onBookClick }) => {
     { name: 'About', path: '/about' },
     { name: 'Services', path: '/services' },
     { name: 'Portfolio', path: '/portfolio' },
+    { name: 'Reviews', path: '/reviews' },
+    { name: 'Courses', path: '/courses' },
     { name: 'Contact', path: '/contact' },
   ];
 
